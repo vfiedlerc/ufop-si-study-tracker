@@ -110,7 +110,7 @@ roteiro_ufop_si.html
 
 ## Context
 
-Built for personal use during preparation for the **Brazilian federal public service auditor exam track (CGU / TCU)**, revisiting the full SI curriculum from UFOP. Later evolved into part of the inspiration for **[Fiedler AI](https://github.com/vfiedlerc/fiedler-ai)** — an AI-powered study guidance SaaS built on top of similar concepts.
+Created to assist and help students of the Information Systems course at the Federal University of Ouro Preto, campus of the Institute of Exact and Applied Sciences.
 
 ---
 
