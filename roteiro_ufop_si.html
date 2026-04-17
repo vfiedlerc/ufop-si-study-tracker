@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Roteiro de Revisão — UFOP Sistemas de Informação</title>
+<style>
+  :root {
+    --blue: #185FA5; --blue-light: #E6F1FB; --blue-dark: #0C447C;
+    --green: #3B6D11; --green-light: #EAF3DE; --green-dark: #27500A;
+    --amber: #854F0B; --amber-light: #FAEEDA; --amber-dark: #633806;
+    --pink: #993556; --pink-light: #FBEAF0; --pink-dark: #72243E;
+    --purple: #534AB7; --purple-light: #EEEDFE; --purple-dark: #3C3489;
+    --gray: #5F5E5A; --gray-light: #F1EFE8; --gray-dark: #444441;
+    --border: #D3D1C7; --bg: #FAFAF8; --text: #1a1a18; --muted: #6b6b67;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  .page-header { background: #fff; border-bottom: 1px solid var(--border); padding: 20px 32px; position: sticky; top: 0; z-index: 100; }
+  .page-header h1 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+  .page-header p { font-size: 12px; color: var(--muted); }
+
+  .stats-bar { display: flex; gap: 24px; padding: 12px 32px; background: #fff; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  .stat { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+  .stat-val { font-size: 20px; font-weight: 600; color: var(--text); }
+  .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .global-bar-wrap { flex: 1; min-width: 120px; }
+  .global-bar-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .global-bar { height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.3s; }
+  .global-pct { font-size: 12px; color: var(--blue); font-weight: 600; margin-bottom: 3px; }
+
+  .toolbar { padding: 12px 32px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .search { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; width: 220px; background: #fff; color: var(--text); }
+  .search:focus { outline: none; border-color: var(--blue); }
+  .filter-btn { padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; background: #fff; color: var(--muted); transition: all 0.15s; }
+  .filter-btn.active { background: var(--blue-light); color: var(--blue-dark); border-color: var(--blue); font-weight: 500; }
+  .btn-reset { margin-left: auto; padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; cursor: pointer; background: #fff; color: var(--muted); }
+  .btn-reset:hover { background: #fff0f0; border-color: #e24b4a; color: #a32d2d; }
+  .btn-collapse { padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; cursor: pointer; background: #fff; color: var(--muted); }
+
+  .main { padding: 20px 32px 60px; max-width: 960px; }
+
+  .period-group { margin-bottom: 24px; }
+  .period-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; padding-left: 2px; }
+
+  .subject-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+  .subject-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; user-select: none; transition: background 0.1s; }
+  .subject-header:hover { background: var(--bg); }
+  .expand-icon { font-size: 9px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+  .subject-card.open .expand-icon { transform: rotate(90deg); }
+  .subject-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); }
+  .cat-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; font-weight: 500; }
+  .bar-wrap { width: 72px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+  .bar { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .prog-txt { font-size: 11px; color: var(--muted); white-space: nowrap; min-width: 30px; text-align: right; }
+
+  .topics-body { display: none; border-top: 1px solid var(--border); padding: 8px 14px 12px; }
+  .subject-card.open .topics-body { display: block; }
+
+  .topic-row { display: flex; align-items: flex-start; gap: 10px; padding: 5px 4px; border-bottom: 1px solid #f1efe8; }
+  .topic-row:last-child { border-bottom: none; }
+  .topic-row input[type=checkbox] { margin-top: 2px; flex-shrink: 0; width: 14px; height: 14px; cursor: pointer; accent-color: var(--blue); }
+  .topic-lbl { font-size: 13px; color: var(--text); line-height: 1.4; cursor: pointer; }
+  .topic-lbl.done { color: #aaa; text-decoration: line-through; }
+
+  .topics-footer { display: flex; justify-content: flex-end; gap: 8px; padding-top: 10px; margin-top: 6px; border-top: 1px solid #f1efe8; }
+  .btn-mark-all { padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--muted); transition: all 0.15s; }
+  .btn-mark-all:hover { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .btn-mark-all.all-done { background: var(--green-light); border-color: var(--green); color: var(--green-dark); font-weight: 500; }
+  .btn-unmark-all { padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--muted); transition: all 0.15s; }
+  .btn-unmark-all:hover { background: #fff0f0; border-color: #e24b4a; color: #a32d2d; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 32px; border-top: 1px solid var(--border); margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  @media print {
+    .toolbar, .btn-reset, .btn-collapse { display: none; }
+    .page-header { position: static; }
+    .subject-card.open .topics-body, .topics-body { display: block !important; }
+    .main { padding: 10px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Roteiro de Revisão — UFOP Sistemas de Informação</h1>
+  <p>Grade curricular completa · Prog I em Python · Prog II em C# · Progresso salvo automaticamente</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Matérias</div></div>
+  <div class="stat"><div class="stat-val" id="s-done">0</div><div class="stat-lbl">Concluídas</div></div>
+  <div class="stat"><div class="stat-val" id="s-topics">0</div><div class="stat-lbl">Tópicos</div></div>
+  <div class="global-bar-wrap">
+    <div class="global-pct" id="s-pct">0% revisado</div>
+    <div class="global-bar-bg"><div class="global-bar" id="global-bar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <input class="search" type="text" placeholder="Buscar matéria..." id="search-inp"/>
+  <button class="filter-btn active" data-cat="all">Todas</button>
+  <button class="filter-btn" data-cat="computacao">Computação</button>
+  <button class="filter-btn" data-cat="matematica">Matemática</button>
+  <button class="filter-btn" data-cat="adm">Adm. e SI</button>
+  <button class="filter-btn" data-cat="humanas">Humanas</button>
+  <button class="filter-btn" data-cat="tcc">TCC</button>
+  <button class="btn-collapse" onclick="collapseAll()">Recolher tudo</button>
+  <button class="btn-collapse" onclick="expandAll()">Expandir tudo</button>
+  <button class="btn-reset" onclick="resetProgress()">Resetar progresso</button>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#E6F1FB;border:1px solid #185FA5"></div> Computação</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#EAF3DE;border:1px solid #3B6D11"></div> Matemática</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FAEEDA;border:1px solid #854F0B"></div> Adm. e SI</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FBEAF0;border:1px solid #993556"></div> Humanas</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#EEEDFE;border:1px solid #534AB7"></div> TCC</div>
+</div>
+
+<script>
+const CAT = {
+  computacao: { bg:'#E6F1FB', color:'#0C447C', label:'Computação', bar:'#185FA5' },
+  matematica:  { bg:'#EAF3DE', color:'#27500A', label:'Matemática', bar:'#3B6D11' },
+  adm:         { bg:'#FAEEDA', color:'#633806', label:'Adm. e SI',  bar:'#854F0B' },
+  humanas:     { bg:'#FBEAF0', color:'#72243E', label:'Humanas',    bar:'#993556' },
+  tcc:         { bg:'#EEEDFE', color:'#3C3489', label:'TCC',        bar:'#534AB7' },
+};
+
+const DATA = [
+  {id:'p1c1',period:1,cat:'computacao',name:'Programação I (Python)',topics:['Tipos de dados, variáveis e operadores','Estruturas de controle (if/elif/else)','Laços for e while','Funções e escopo','Listas, tuplas, dicionários e sets','Strings e manipulação de texto','Leitura e escrita de arquivos','Tratamento de exceções (try/except)','Módulos e pacotes','Introdução a OOP — classes e objetos','Compreensões de lista','Boas práticas e PEP 8']},
+  {id:'p1c2',period:1,cat:'matematica',name:'Fundamentos de Cálculo',topics:['Limites e continuidade','Derivadas e regras de derivação','Derivadas de funções trigonométricas e exponenciais','Regra da cadeia e derivada implícita','Aplicações de derivadas — máx./mín. e taxa de variação','Integral definida e indefinida','Teorema Fundamental do Cálculo','Técnicas de integração — substituição e partes','Séries de Taylor (introdução)']},
+  {id:'p1c3',period:1,cat:'matematica',name:'Fundamentos de GAAL',topics:['Vetores e operações vetoriais','Matrizes e operações matriciais','Determinantes','Sistemas lineares — Gauss e Gauss-Jordan','Espaços vetoriais','Transformações lineares','Autovalores e autovetores','Produto interno e ortogonalidade']},
+  {id:'p1c4',period:1,cat:'adm',name:'Fundamentos de SI',topics:['Conceitos de sistemas de informação','Tipos de SI — TPS, MIS, DSS, EIS','SI nas organizações','Gestão do conhecimento','Governança de TI — COBIT e ITIL (noções)','Segurança da informação — conceitos iniciais','Ética e legislação em TI']},
+  {id:'p1c5',period:1,cat:'humanas',name:'Informática e Sociedade',topics:['Impactos sociais da tecnologia','Inclusão e exclusão digital','Privacidade e proteção de dados','Direitos autorais e software livre','Ética profissional em TI','LGPD — noções gerais']},
+  {id:'p1c6',period:1,cat:'computacao',name:'Metodologia de Pesquisa',topics:['Tipos de pesquisa científica','Normas ABNT','Estrutura de artigo e TCC','Revisão bibliográfica','Citações e referências','Planejamento de pesquisa']},
+
+  {id:'p2c1',period:2,cat:'computacao',name:'Programação II (C#)',topics:['Sintaxe e tipos de dados em C#','Classes, objetos e encapsulamento','Herança e polimorfismo','Interfaces e classes abstratas','Coleções — List, Dictionary, Array','Exceções e tratamento de erros','Delegates, Events e Lambdas','LINQ básico','Entrada e saída de arquivos','Genéricos','Introdução ao .NET e ambiente de desenvolvimento']},
+  {id:'p2c2',period:2,cat:'computacao',name:'Algoritmos e Estruturas de Dados I',topics:['Análise de complexidade — Big O','Arrays e listas encadeadas — simples e dupla','Pilhas (Stack)','Filas (Queue)','Recursão','Árvores binárias de busca','Algoritmos de ordenação — bubble, selection, insertion','Algoritmos de busca — linear e binária']},
+  {id:'p2c3',period:2,cat:'matematica',name:'Matemática Discreta',topics:['Lógica proposicional','Predicados e quantificadores','Teoria dos conjuntos','Relações e funções','Indução matemática','Grafos — conceitos básicos','Combinatória — permutação e combinação','Teoria dos números — divisibilidade e MDC','Álgebra booleana']},
+  {id:'p2c4',period:2,cat:'adm',name:'Gestão da Informação',topics:['Dado, informação e conhecimento','Sistemas de recuperação da informação','Arquitetura da informação','Gestão documental','Qualidade da informação','BI e analytics — introdução']},
+  {id:'p2c5',period:2,cat:'humanas',name:'Teoria Geral da Administração',topics:['Escola clássica — Taylor e Fayol','Escola das relações humanas','Abordagem sistêmica','Funções administrativas — PODC','Estruturas organizacionais','Cultura e clima organizacional']},
+
+  {id:'p3c1',period:3,cat:'computacao',name:'Algoritmos e Estr. de Dados II',topics:['Árvores AVL','Árvores B e B+','Heaps e filas de prioridade','Tabelas hash','Algoritmos de ordenação avançados — merge, quick, heap sort','Grafos — busca DFS e BFS','Algoritmos de caminho mínimo — Dijkstra e Bellman-Ford','Árvore geradora mínima — Kruskal e Prim']},
+  {id:'p3c2',period:3,cat:'computacao',name:'Algoritmos e Estr. de Dados III',topics:['Programação dinâmica','Algoritmos gulosos','Backtracking','Divisão e conquista avançado','Fluxo em redes','Complexidade computacional — P, NP, NP-completo','Algoritmos de string — KMP e Rabin-Karp']},
+  {id:'p3c3',period:3,cat:'computacao',name:'Org. e Arq. de Computadores I',topics:['Representação de dados — binário, hex, complemento de 2','Lógica digital — portas e circuitos combinacionais','Circuitos sequenciais e flip-flops','ULA e datapaths','Conjunto de instruções — ISA','Ciclo de busca-execução','Pipeline básico','Hierarquia de memória']},
+  {id:'p3c4',period:3,cat:'matematica',name:'Estatística e Probabilidade',topics:['Estatística descritiva — média, mediana, desvio padrão','Probabilidade clássica','Distribuições discretas — Bernoulli, Binomial, Poisson','Distribuições contínuas — Normal e Exponencial','Teorema central do limite','Inferência estatística — intervalos de confiança','Testes de hipótese','Regressão linear simples','Correlação']},
+  {id:'p3c5',period:3,cat:'humanas',name:'Comportamento Organizacional',topics:['Motivação e teorias motivacionais','Liderança','Trabalho em equipe e grupos','Comunicação organizacional','Conflito e negociação','Mudança organizacional']},
+
+  {id:'p4c1',period:4,cat:'computacao',name:'Engenharia de Software I',topics:['Ciclo de vida de software','Modelos de processo — cascata, espiral, incremental','Engenharia de requisitos','Casos de uso e histórias de usuário','UML — diagramas de classe, sequência e atividade','Metodologias ágeis — Scrum e Kanban','Gerência de configuração e Git','Qualidade de software']},
+  {id:'p4c2',period:4,cat:'computacao',name:'Banco de Dados I',topics:['Modelo entidade-relacionamento — MER','Modelo relacional','Normalização — 1FN, 2FN, 3FN, BCNF','SQL DDL — CREATE, ALTER, DROP','SQL DML — SELECT, INSERT, UPDATE, DELETE','Joins — INNER, LEFT, RIGHT, FULL','Subconsultas e views','Transações e controle de concorrência básico','Índices']},
+  {id:'p4c3',period:4,cat:'computacao',name:'Sistemas Operacionais',topics:['Estrutura e funções de um SO','Processos e threads','Escalonamento de CPU','Gerenciamento de memória — paginação e segmentação','Memória virtual e page replacement','Sistema de arquivos','Entrada e saída (I/O)','Deadlock','Sincronização — semáforos e mutex','Comandos Linux fundamentais']},
+  {id:'p4c4',period:4,cat:'matematica',name:'Programação Linear e Inteira',topics:['Modelagem de problemas de otimização','Método Simplex','Análise de sensibilidade','Programação inteira — Branch and Bound','Problemas clássicos — mochila e cobertura','Dualidade']},
+  {id:'p4c5',period:4,cat:'adm',name:'Economia',topics:['Microeconomia — oferta e demanda','Elasticidade','Estruturas de mercado','Macroeconomia — PIB, inflação, desemprego','Política fiscal e monetária','Análise de custo-benefício']},
+
+  {id:'p5c1',period:5,cat:'computacao',name:'Engenharia de Software II',topics:['Padrões de projeto GoF — criacionais, estruturais, comportamentais','Arquitetura de software — MVC, camadas, microsserviços','Testes — unitário, integração, sistema','TDD e BDD','Refactoring','Code review e boas práticas','DevOps e CI/CD introdução']},
+  {id:'p5c2',period:5,cat:'computacao',name:'Banco de Dados II',topics:['Controle de transações — ACID','Recuperação de falhas','Controle de concorrência avançado','Data Warehouse e OLAP','ETL básico','Bancos NoSQL — documento, chave-valor, grafo','MongoDB básico','Tuning e otimização de consultas','Planos de execução']},
+  {id:'p5c3',period:5,cat:'computacao',name:'Fundamentos Teóricos da Computação',topics:['Autômatos finitos determinísticos e não-determinísticos','Expressões regulares','Gramáticas formais','Autômatos com pilha','Máquinas de Turing','Decidibilidade e computabilidade','Linguagens e hierarquia de Chomsky']},
+  {id:'p5c4',period:5,cat:'computacao',name:'Redes de Computadores I',topics:['Modelo OSI e TCP/IP','Camada física e enlace','Endereçamento IP — IPv4, IPv6, CIDR','Roteamento — RIP, OSPF, BGP (noções)','Camada de transporte — TCP vs UDP','DNS, DHCP, HTTP, HTTPS','Camada de aplicação','Introdução a segurança de redes']},
+  {id:'p5c5',period:5,cat:'computacao',name:'Inteligência Artificial',topics:['Busca não-informada — BFS, DFS, custo uniforme','Busca heurística — A* e greedy','Representação do conhecimento','Lógica de primeira ordem','Redes bayesianas — introdução','Aprendizado de máquina — conceitos gerais','Regressão e classificação','Árvores de decisão','k-NN e naive Bayes','Introdução a redes neurais']},
+
+  {id:'p6c1',period:6,cat:'computacao',name:'Ger. de Projetos de Software',topics:['PMBOK aplicado a software','Escopo, tempo e custo','EAP — Work Breakdown Structure','Gerência de riscos','Gerência de qualidade','Métricas de software — Pontos de Função','Ferramentas de gestão — Jira e MS Project (noções)']},
+  {id:'p6c2',period:6,cat:'computacao',name:'Sistemas Web I',topics:['HTML5 semântico','CSS3 — Flexbox e Grid','JavaScript essencial — DOM e eventos','Protocolos HTTP e HTTPS','REST e APIs — conceitos','Introdução a frameworks front-end','Formulários, validação e acessibilidade','Segurança web básica — XSS e CSRF']},
+  {id:'p6c3',period:6,cat:'computacao',name:'Linguagens de Programação',topics:['Paradigmas — imperativo, funcional, lógico, OO','Sistemas de tipos','Gerenciamento de memória e garbage collection','Closures e funções de primeira classe','Concorrência e paralelismo','Metaprogramação','Análise léxica e sintática básica','Comparação de linguagens']},
+  {id:'p6c4',period:6,cat:'computacao',name:'Interação Humano-Computador',topics:['Princípios de usabilidade — Nielsen','Design centrado no usuário','Prototipagem — wireframe e mockup','Avaliação heurística','Testes de usabilidade','Acessibilidade — WCAG','UX e UI — diferenças e práticas']},
+  {id:'p6c5',period:6,cat:'computacao',name:'Sistemas Distribuídos',topics:['Características e desafios de SD','Comunicação — RPC e mensageria','Sincronização e relógio lógico','Consistência e replicação','Tolerância a falhas','Sistemas P2P','CAP theorem','Introdução a contêineres e orquestração']},
+
+  {id:'p7c1',period:7,cat:'computacao',name:'Gestão da TI',topics:['ITIL v4 — práticas e ciclo de vida','COBIT — framework de governança','SLA e gestão de serviços','Gestão de ativos e configuração','Gestão de incidentes e problemas','Continuidade de negócios — BCP e DRP','Terceirização de TI']},
+  {id:'p7c2',period:7,cat:'adm',name:'Empreendedorismo',topics:['Conceitos de empreendedorismo','Modelos de negócio — Business Model Canvas','Lean Startup','Validação de hipóteses','Análise de mercado e concorrência','Pitch e captação de investimento','Gestão financeira básica para startups']},
+  {id:'p7c3',period:7,cat:'adm',name:'Adm. de Recursos Humanos',topics:['Recrutamento e seleção','Avaliação de desempenho','Gestão de competências','Capacitação e treinamento','Clima e cultura organizacional','Legislação trabalhista básica']},
+  {id:'p7c4',period:7,cat:'computacao',name:'Eletiva I',topics:['(Defina a eletiva cursada e adicione os tópicos)']},
+  {id:'p7c5',period:7,cat:'computacao',name:'Eletiva II',topics:['(Defina a eletiva cursada e adicione os tópicos)']},
+  {id:'p7c6',period:7,cat:'tcc',name:'TCC I',topics:['Definição do tema e problema de pesquisa','Revisão bibliográfica completa','Metodologia de pesquisa','Proposta e objetivos','Cronograma e planejamento','Estrutura preliminar do TCC','Apresentação para banca de qualificação']},
+
+  {id:'p8c1',period:8,cat:'computacao',name:'Segurança e Auditoria',topics:['Criptografia simétrica e assimétrica','PKI e certificados digitais','Autenticação e autorização','Vulnerabilidades comuns — OWASP Top 10','Testes de penetração — conceitos','Auditoria de sistemas','Normas ISO 27001 e 27002','Forense digital — introdução','Conformidade e compliance']},
+  {id:'p8c2',period:8,cat:'adm',name:'Sistemas de Apoio à Decisão',topics:['Data Warehouse e modelagem dimensional','OLAP e cubos de dados','Business Intelligence','Dashboards e visualização de dados','Mineração de dados — data mining','KPIs e métricas de negócio','Ferramentas — Power BI e Tableau (noções)']},
+  {id:'p8c3',period:8,cat:'computacao',name:'Eletiva III',topics:['(Defina a eletiva cursada e adicione os tópicos)']},
+  {id:'p8c4',period:8,cat:'computacao',name:'Eletiva IV',topics:['(Defina a eletiva cursada e adicione os tópicos)']},
+  {id:'p8c5',period:8,cat:'computacao',name:'Eletiva V',topics:['(Defina a eletiva cursada e adicione os tópicos)']},
+  {id:'p8c6',period:8,cat:'tcc',name:'TCC II',topics:['Desenvolvimento e implementação','Análise e discussão dos resultados','Revisão final do texto','Formatação ABNT','Apresentação final para banca','Publicação ou submissão de artigo']},
+];
+
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem('ufop_si_progress') || '{}'); } catch(e){}
+function save() { try { localStorage.setItem('ufop_si_progress', JSON.stringify(progress)); } catch(e){} }
+
+function key(sid, i) { return sid + '_' + i; }
+
+function subjDone(s) {
+  return { done: s.topics.filter((_,i) => progress[key(s.id,i)]).length, total: s.topics.length };
+}
+
+function barColor(pct) {
+  if (pct === 100) return '#3B6D11';
+  if (pct >= 60) return '#854F0B';
+  return '#185FA5';
+}
+
+function updateStats() {
+  let tS=0, dS=0, tT=0, dT=0;
+  DATA.forEach(s => { const p=subjDone(s); tS++; tT+=p.total; dT+=p.done; if(p.done===p.total) dS++; });
+  document.getElementById('s-total').textContent = tS;
+  document.getElementById('s-done').textContent = dS;
+  document.getElementById('s-topics').textContent = tT;
+  const pct = tT ? Math.round(dT/tT*100) : 0;
+  document.getElementById('s-pct').textContent = pct + '% revisado';
+  document.getElementById('global-bar').style.width = pct + '%';
+  document.getElementById('global-bar').style.background = barColor(pct);
+}
+
+function render() {
+  const cat = document.querySelector('.filter-btn.active')?.dataset.cat || 'all';
+  const q = document.getElementById('search-inp').value.toLowerCase();
+  const container = document.getElementById('main');
+  container.innerHTML = '';
+  const periods = [...new Set(DATA.map(s=>s.period))];
+
+  periods.forEach(p => {
+    const subjects = DATA.filter(s => {
+      if (cat !== 'all' && s.cat !== cat) return false;
+      if (q && !s.name.toLowerCase().includes(q)) return false;
+      return s.period === p;
+    });
+    if (!subjects.length) return;
+
+    const pg = document.createElement('div');
+    pg.className = 'period-group';
+    pg.innerHTML = `<div class="period-label">${p}º Período</div>`;
+
+    subjects.forEach(s => {
+      const {done, total} = subjDone(s);
+      const pct = Math.round(done/total*100);
+      const cs = CAT[s.cat];
+      const card = document.createElement('div');
+      card.className = 'subject-card';
+      card.id = 'card-' + s.id;
+
+      const topicsHtml = s.topics.map((t,i) => {
+        const k = key(s.id, i);
+        const chk = progress[k] ? 'checked' : '';
+        return `<div class="topic-row">
+          <input type="checkbox" id="${k}" ${chk} onchange="toggleTopic('${k}','${s.id}',this.checked)"/>
+          <label class="topic-lbl${chk ? ' done':''}" for="${k}">${t}</label>
+        </div>`;
+      }).join('');
+
+      const allDone = done === total;
+      card.innerHTML = `
+        <div class="subject-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="expand-icon">&#9658;</span>
+          <span class="subject-name">${s.name}</span>
+          <span class="cat-badge" style="background:${cs.bg};color:${cs.color}">${cs.label}</span>
+          <div class="bar-wrap"><div class="bar" id="bar-${s.id}" style="width:${pct}%;background:${barColor(pct)}"></div></div>
+          <span class="prog-txt" id="prog-${s.id}">${done}/${total}</span>
+        </div>
+        <div class="topics-body">
+          ${topicsHtml}
+          <div class="topics-footer">
+            <button class="btn-unmark-all" onclick="markAll('${s.id}',false)">Desmarcar todos</button>
+            <button class="btn-mark-all${allDone?' all-done':''}" id="markbtn-${s.id}" onclick="markAll('${s.id}',true)">&#10003; Marcar todos como concluido</button>
+          </div>
+        </div>`;
+      pg.appendChild(card);
+    });
+    container.appendChild(pg);
+  });
+  updateStats();
+}
+
+function toggleTopic(k, sid, val) {
+  progress[k] = val;
+  save();
+  const lbl = document.querySelector(`label[for="${k}"]`);
+  if (lbl) lbl.classList.toggle('done', val);
+  const s = DATA.find(x => x.id === sid);
+  const {done, total} = subjDone(s);
+  const pct = Math.round(done/total*100);
+  const bar = document.getElementById('bar-'+sid);
+  const pt = document.getElementById('prog-'+sid);
+  if (bar) { bar.style.width = pct+'%'; bar.style.background = barColor(pct); }
+  if (pt) pt.textContent = done+'/'+total;
+  updateStats();
+}
+
+function markAll(sid, val) {
+  const s = DATA.find(x => x.id === sid);
+  s.topics.forEach((_, i) => {
+    const k = key(sid, i);
+    progress[k] = val;
+    const chk = document.getElementById(k);
+    const lbl = document.querySelector(`label[for="${k}"]`);
+    if (chk) chk.checked = val;
+    if (lbl) lbl.classList.toggle('done', val);
+  });
+  save();
+  const {done, total} = subjDone(s);
+  const pct = Math.round(done/total*100);
+  const bar = document.getElementById('bar-'+sid);
+  const pt = document.getElementById('prog-'+sid);
+  const btn = document.getElementById('markbtn-'+sid);
+  if (bar) { bar.style.width = pct+'%'; bar.style.background = barColor(pct); }
+  if (pt) pt.textContent = done+'/'+total;
+  if (btn) btn.classList.toggle('all-done', val);
+  updateStats();
+}
+
+function collapseAll() { document.querySelectorAll('.subject-card.open').forEach(c=>c.classList.remove('open')); }
+function expandAll() { document.querySelectorAll('.subject-card').forEach(c=>c.classList.add('open')); }
+
+function resetProgress() {
+  if (confirm('Resetar todo o progresso? Esta ação não pode ser desfeita.')) {
+    localStorage.removeItem('ufop_si_progress');
+    progress = {};
+    render();
+  }
+}
+
+document.querySelector('.toolbar').addEventListener('click', e => {
+  if (e.target.classList.contains('filter-btn')) {
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    render();
+  }
+});
+document.getElementById('search-inp').addEventListener('input', render);
+
+render();
+</script>
+</body>
+</html>
